@@ -17,6 +17,9 @@ class RotaryEncoderDriver(Node):
         self.port = self.declare_parameter('port', '/dev/tty.usbmodem141301').value
         self.baudrate = self.declare_parameter('baud', 115200).value
 
+        self.left_wheel_id = self.declare_parameter('left_wheel_id', 0).value
+        self.right_wheel_id = self.declare_parameter('right_wheel_id', 1).value
+
         try:
             self.encoder_serial_reader = serial.Serial(port=self.port, baudrate=self.baudrate, timeout=2)
         except serial.SerialException as e:
@@ -33,13 +36,13 @@ class RotaryEncoderDriver(Node):
 
             msg = self.to_msg(tick)
 
-            if sensor_id == "Left":
+            if sensor_id == self.left_wheel_id:
                 self.left_tick.publish(msg)
             else:
                 self.right_tick.publish(msg)
 
     def read_data(self):
-        data = self.range_serial_reader.readline().strip()
+        data = self.encoder_serial_reader.readline().strip()
         if isinstance(data, bytes):
             data = data.decode("utf-8")
         return data
@@ -48,14 +51,13 @@ class RotaryEncoderDriver(Node):
     def parse_data(data):
         if data:
             parts = data.split(" ")
-            if len(parts) != 2:
+            if len(parts) != 6:
                 # self.get_logger().warning("Could not parse sensor data")
                 raise Exception("Incorrect data format")
 
-            tick = float(parts[1])
+            tick = int(parts[5])
 
-            id_regex = r'Left|Right'
-            sensor_id = re.findall(id_regex, parts[0])[0]
+            sensor_id = int(parts[1])
 
             return sensor_id, tick
 
