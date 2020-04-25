@@ -11,8 +11,8 @@ from std_msgs.msg import Int32
 class RotaryEncoderDriver(Node):
     def __init__(self):
         super().__init__('rotary_encoder_driver')
-        self.left_tick = self.create_publisher(Int32, 'wheel_left_tick', 10)
-        self.right_tick = self.create_publisher(Int32, 'wheel_right_tick', 10)
+        self.left_tick = self.create_publisher(Int32, 'wheel_left_tick', 50)
+        self.right_tick = self.create_publisher(Int32, 'wheel_right_tick', 50)
 
         self.port = self.declare_parameter('port', '/dev/tty.usbmodem141301').value
         self.baudrate = self.declare_parameter('baud', 115200).value
